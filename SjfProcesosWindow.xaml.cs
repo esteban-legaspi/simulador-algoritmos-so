@@ -41,6 +41,11 @@ namespace simulador_algoritmos_so
             CalcularSJF(lista);
         }
 
+        private void BtnRegresar_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
         private void BtnManual_Click(object sender, RoutedEventArgs e)
         {
             // Se implementa después con ManualProcesosDialog

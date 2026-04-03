@@ -41,6 +41,11 @@ namespace simulador_algoritmos_so
             CalcularFIFO(frames, refs);
         }
 
+        private void BtnRegresar_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
         private void BtnManual_Click(object sender, RoutedEventArgs e)
         {
             if (!int.TryParse(txtFrames.Text, out int frames) || frames < 1)
