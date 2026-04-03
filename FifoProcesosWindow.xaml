@@ -7,12 +7,28 @@
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="120"/>
         </Grid.RowDefinitions>
 
+        <!-- Encabezado con botón regresar -->
+        <Grid Grid.Row="0" Background="#E0E0E0" Margin="0,0,0,5">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="← Regresar" Grid.Column="0"
+            Margin="5" Padding="10,5"
+            Click="BtnRegresar_Click"/>
+            <TextBlock Text="FIFO — Planificación de Procesos"
+               Grid.Column="1"
+               FontSize="16" FontWeight="Bold"
+               VerticalAlignment="Center" Margin="10,0"/>
+        </Grid>
+
         <!-- Controles superiores -->
-        <StackPanel Orientation="Horizontal" Grid.Row="0" Margin="0,0,0,10">
+        <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="0,0,0,10">
             <TextBlock Text="Número de procesos:" VerticalAlignment="Center" Margin="5"/>
             <TextBox x:Name="txtCantidad" Width="50" Margin="5" Text="5"/>
             <Button Content="Llenado Manual" Click="BtnManual_Click" Margin="5" Padding="10,2"/>
@@ -20,7 +36,7 @@
         </StackPanel>
 
         <!-- Tabla de resultados -->
-        <DataGrid x:Name="dgFifo" Grid.Row="1" Margin="5"
+        <DataGrid x:Name="dgFifo" Grid.Row="2" Margin="5"
                   AutoGenerateColumns="False"
                   IsReadOnly="True"
                   CanUserAddRows="False">
@@ -33,7 +49,7 @@
         </DataGrid>
 
         <!-- Gráfica de Gantt -->
-        <GroupBox Header="Gráfica de Gantt" Grid.Row="2" Margin="5">
+        <GroupBox Header="Gráfica de Gantt" Grid.Row="3" Margin="5">
             <ScrollViewer HorizontalScrollBarVisibility="Auto">
                 <ItemsControl x:Name="icGantt">
                     <ItemsControl.ItemsPanel>

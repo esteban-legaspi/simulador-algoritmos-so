@@ -29,6 +29,11 @@ namespace simulador_algoritmos_so
             public int TiempoRetorno { get; set; }
         }
 
+        private void BtnRegresar_Click(object sender, RoutedEventArgs e)
+        {
+            this.Close();
+        }
+
         private void BtnAleatorio_Click(object sender, RoutedEventArgs e)
         {
             if (!int.TryParse(txtCantidad.Text, out int n)) return;
@@ -44,9 +49,9 @@ namespace simulador_algoritmos_so
         {
             if (!int.TryParse(txtCantidad.Text, out int n)) return;
 
-            //var dialogo = new ManualProcesosDialog(n);
-            //if (dialogo.ShowDialog() == true)
-                //CalcularFIFO(dialogo.Procesos);
+            var dialogo = new ManualProcesosDialog(n);
+            if (dialogo.ShowDialog() == true)
+                CalcularFIFO(dialogo.Procesos);
         }
 
         private void CalcularFIFO(List<Proceso> procesos)
