@@ -12,11 +12,11 @@ using System.Windows.Shapes;
 
 namespace simulador_algoritmos_so
 {
-    public partial class FifoProcesosWindow : Window
+    public partial class SjfProcesosWindow : Window
     {
         Random rnd = new Random();
 
-        public FifoProcesosWindow()
+        public SjfProcesosWindow()
         {
             InitializeComponent();
         }
@@ -25,6 +25,7 @@ namespace simulador_algoritmos_so
         {
             public string? Nombre { get; set; }
             public int Rafaga { get; set; }
+            public int OrdenEjecucion { get; set; }
             public int TiempoEspera { get; set; }
             public int TiempoRetorno { get; set; }
         }
@@ -37,32 +38,31 @@ namespace simulador_algoritmos_so
             for (int i = 0; i < n; i++)
                 lista.Add(new Proceso { Nombre = "P" + i, Rafaga = rnd.Next(1, 10) });
 
-            CalcularFIFO(lista);
+            CalcularSJF(lista);
         }
 
         private void BtnManual_Click(object sender, RoutedEventArgs e)
         {
-            if (!int.TryParse(txtCantidad.Text, out int n)) return;
-
-            //var dialogo = new ManualProcesosDialog(n);
-            //if (dialogo.ShowDialog() == true)
-                //CalcularFIFO(dialogo.Procesos);
+            // Se implementa después con ManualProcesosDialog
         }
 
-        private void CalcularFIFO(List<Proceso> procesos)
+        private void CalcularSJF(List<Proceso> procesos)
         {
+            var ordenados = procesos.OrderBy(p => p.Rafaga).ToList();
             int reloj = 0;
+            int orden = 1;
             icGantt.Items.Clear();
 
-            foreach (var p in procesos)
+            foreach (var p in ordenados)
             {
+                p.OrdenEjecucion = orden++;
                 p.TiempoEspera = reloj;
                 DibujarBloqueGantt(p.Nombre, p.Rafaga);
                 reloj += p.Rafaga;
                 p.TiempoRetorno = reloj;
             }
 
-            dgFifo.ItemsSource = procesos;
+            dgSjf.ItemsSource = ordenados;
         }
 
         private void DibujarBloqueGantt(string nombre, int ancho)
