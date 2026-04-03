@@ -3,10 +3,33 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:simulador_algoritmos_so"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Simulador de Algoritmos SO" Height="450" Width="600"
+        WindowStartupLocation="CenterScreen">
+    <Grid Background="#F0F4F8">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Width="300">
+            <TextBlock Text="Simulador de Algoritmos SO"
+                       FontSize="22" FontWeight="Bold"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,30"/>
 
+            <Button Content="1. FIFO — Planificación de Procesos"
+                    x:Name="btnFifoProcesos"
+                    Height="50" Margin="0,8"
+                    FontSize="14"
+                    Click="BtnFifoProcesos_Click"/>
+
+            <Button Content="2. SJF — Trabajo más Corto Primero"
+                    x:Name="btnSjf"
+                    Height="50" Margin="0,8"
+                    FontSize="14"
+                    Click="BtnSjf_Click"/>
+
+            <Button Content="3. FIFO — Reemplazo de Páginas"
+                    x:Name="btnFifoPaginas"
+                    Height="50" Margin="0,8"
+                    FontSize="14"
+                    Click="BtnFifoPaginas_Click"/>
+        </StackPanel>
     </Grid>
 </Window>
