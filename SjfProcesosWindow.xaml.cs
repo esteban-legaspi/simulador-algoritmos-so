@@ -48,7 +48,19 @@ namespace simulador_algoritmos_so
 
         private void BtnManual_Click(object sender, RoutedEventArgs e)
         {
-            // Se implementa después con ManualProcesosDialog
+            if (!int.TryParse(txtCantidad.Text, out int n)) return;
+
+            var dialogo = new ManualProcesosDialog(n);
+            if (dialogo.ShowDialog() == true)
+            {
+                var procesos = dialogo.Procesos.Select(p => new Proceso
+                {
+                    Nombre = p.Nombre,
+                    Rafaga = p.Rafaga
+                }).ToList();
+
+                CalcularSJF(procesos);
+            }
         }
 
         private void CalcularSJF(List<Proceso> procesos)
