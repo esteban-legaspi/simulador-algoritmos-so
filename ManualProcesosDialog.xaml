@@ -16,8 +16,10 @@
                   CanUserDeleteRows="True"
                   Margin="0,0,0,10">
             <DataGrid.Columns>
-                <DataGridTextColumn Header="Nombre" Binding="{Binding Nombre}" Width="*"/>
-                <DataGridTextColumn Header="Ráfaga" Binding="{Binding Rafaga}" Width="*"/>
+                <DataGridTextColumn Header="Proceso" Binding="{Binding Nombre}" Width="*"/>
+                <DataGridTextColumn Header="Llegada" Binding="{Binding Llegada}" Width="*"/>
+                <DataGridTextColumn Header="t" Binding="{Binding t}" Width="*"/>
+                <DataGridTextColumn Header="Prioridad" Binding="{Binding Prioridad}" Width="*"/>
             </DataGrid.Columns>
         </DataGrid>
 

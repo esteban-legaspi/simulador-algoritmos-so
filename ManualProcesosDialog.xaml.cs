@@ -13,7 +13,7 @@ namespace simulador_algoritmos_so
 {
     public partial class ManualProcesosDialog : Window
     {
-        public List<FifoProcesosWindow.Proceso> Procesos { get; private set; } = new();
+        public List<Proceso> Procesos { get; private set; } = new();
 
         private int _cantidad;
 
@@ -26,9 +26,9 @@ namespace simulador_algoritmos_so
 
         private void CargarFilasVacias()
         {
-            var lista = new List<FifoProcesosWindow.Proceso>();
+            var lista = new List<Proceso>();
             for (int i = 0; i < _cantidad; i++)
-                lista.Add(new FifoProcesosWindow.Proceso { Nombre = "P" + i, Rafaga = 1 });
+                lista.Add(new Proceso { Nombre = "P" + i, t = 1 });
 
             dgProcesos.ItemsSource = lista;
         }
@@ -38,11 +38,11 @@ namespace simulador_algoritmos_so
             // Forzar commit de la celda activa
             dgProcesos.CommitEdit(DataGridEditingUnit.Row, true);
 
-            var lista = dgProcesos.ItemsSource as List<FifoProcesosWindow.Proceso>;
+            var lista = dgProcesos.ItemsSource as List<Proceso>;
 
-            if (lista == null || lista.Any(p => p.Rafaga <= 0))
+            if (lista == null || lista.Any(p => p.t <= 0))
             {
-                MessageBox.Show("Todos los procesos deben tener una ráfaga mayor a 0.");
+                MessageBox.Show("Todos los procesos deben tener una t mayor a 0.");
                 return;
             }
 

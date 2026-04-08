@@ -18,18 +18,9 @@ namespace simulador_algoritmos_so
             InitializeComponent();
         }
 
-        private void BtnFifoProcesos_Click(object sender, RoutedEventArgs e)
+        private void ProcesosClick(object sender, RoutedEventArgs e)
         {
-            var ventana = new FifoProcesosWindow();
-            ventana.Owner = this;
-            this.Hide();
-            ventana.ShowDialog();
-            this.Show();
-        }
-
-        private void BtnSjf_Click(object sender, RoutedEventArgs e)
-        {
-            var ventana = new SjfProcesosWindow();
+            var ventana = new ProcesosWindow();
             ventana.Owner = this;
             this.Hide();
             ventana.ShowDialog();
