@@ -15,8 +15,9 @@ namespace simulador_algoritmos_so
         public int Fin { get; set; }
         public int T { get; set; }
         public int E { get; set; }
-        public int P { get; set; }
+        public double P { get; set; }
         public SolidColorBrush? Color { get; set; }
 
+        public int tRestante { get; set; }
     }
 }
