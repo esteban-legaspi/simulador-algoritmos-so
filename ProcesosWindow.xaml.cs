@@ -115,73 +115,85 @@ namespace simulador_algoritmos_so
 
         // ─── Algoritmos ──────────────────────────────────────────────────────────
 
+        // Recibe procesos, lista resultado, segmentos gantt y el tipo de algoritmo
         private void EjecutarNoExpulsivo(List<Proceso> procs, List<Proceso> resultado,
             List<(Proceso p, int ini, int fin)> segs, string tipo)
         {
+            // Copia de procesos pendientes por ejecutar
             var pendientes = new List<Proceso>(procs);
+            // Reloj del simulador
             int reloj = 0;
 
+            // Mientras haya procesos sin ejecutar
             while (pendientes.Count > 0)
             {
+                // Filtrar los que ya llegaron al tiempo actual
                 var disponibles = pendientes.Where(p => p.Llegada <= reloj).ToList();
+                // Si ninguno ha llegado, avanzar el reloj al siguiente que llega
                 if (!disponibles.Any()) { reloj = pendientes.Min(p => p.Llegada); continue; }
 
+                // Elegir el siguiente según el algoritmo
                 var siguiente = tipo switch
                 {
-                    "SJF" => disponibles.OrderBy(p => p.t).ThenBy(p => p.Llegada).First(),
-                    "Prioridad" => disponibles.OrderBy(p => p.Prioridad).ThenBy(p => p.Llegada).First(),
-                    _ => disponibles.OrderBy(p => p.Llegada).First()
+                    "SJF" => disponibles.OrderBy(p => p.t).ThenBy(p => p.Llegada).First(),        // menor burst
+                    "Prioridad" => disponibles.OrderBy(p => p.Prioridad).ThenBy(p => p.Llegada).First(),// menor número = mayor prioridad
+                    _ => disponibles.OrderBy(p => p.Llegada).First()                          // FIFO: el que llegó primero
                 };
 
-                pendientes.Remove(siguiente);
-                if (reloj < siguiente.Llegada) reloj = siguiente.Llegada;
+                pendientes.Remove(siguiente);                          // ya no está pendiente
+                if (reloj < siguiente.Llegada) reloj = siguiente.Llegada; // si llegó después, avanzar reloj
 
-                siguiente.Inicio = reloj;
-                reloj += siguiente.t;
-                siguiente.Fin = reloj;
-                siguiente.T = siguiente.Fin - siguiente.Llegada;
-                siguiente.E = siguiente.T - siguiente.t;
+                siguiente.Inicio = reloj;                              // empieza ahora
+                reloj += siguiente.t;                                  // ocupa la CPU su burst completo
+                siguiente.Fin = reloj;                                 // termina aquí
+                siguiente.T = siguiente.Fin - siguiente.Llegada;       // turnaround = fin - llegada
+                siguiente.E = siguiente.T - siguiente.t;               // espera = turnaround - burst
 
-                segs.Add((siguiente, siguiente.Inicio, siguiente.Fin));
-                resultado.Add(siguiente);
+                segs.Add((siguiente, siguiente.Inicio, siguiente.Fin)); // registrar en Gantt
+                resultado.Add(siguiente);                               // agregar a resultados
             }
         }
 
+        // Recibe la lista de procesos, lista resultado, segmentos gantt y el quantum
         private void EjecutarRoundRobin(List<Proceso> procs, List<Proceso> resultado,
             List<(Proceso p, int ini, int fin)> segs, int quantum)
         {
+            // Copia de procesos ordenados por llegada
             var restantes = new List<Proceso>(procs.OrderBy(p => p.Llegada));
+            // Cola de listos (procesos que ya llegaron y esperan CPU)
             var cola = new Queue<Proceso>();
+            // Reloj del simulador
             int t = 0;
 
+            // Mientras haya procesos sin terminar (en espera o en cola)
             while (restantes.Count > 0 || cola.Count > 0)
             {
-                // Si la cola está vacía, avanzar al siguiente proceso
+                // Si la cola está vacía no hay nadie listo, saltar al siguiente que llega
                 if (cola.Count == 0)
                 {
-                    t = restantes.Min(p => p.Llegada);
-                    EnqueueArrived(restantes, cola, t);
+                    t = restantes.Min(p => p.Llegada);        // avanzar reloj a esa llegada
+                    EnqueueArrived(restantes, cola, t);        // encolar los que ya llegaron
                 }
 
-                var cur = cola.Dequeue();
-                if (cur.Inicio < 0) cur.Inicio = t;
+                var cur = cola.Dequeue();                      // sacar el primero de la cola
+                if (cur.Inicio < 0) cur.Inicio = t;            // guardar cuándo corrió por primera vez
 
-                int run = Math.Min(quantum, cur.tRestante);
-                segs.Add((cur, t, t + run));
-                t += run;
-                cur.tRestante -= run;
+                int run = Math.Min(quantum, cur.tRestante);    // correr quantum o lo que le queda
+                segs.Add((cur, t, t + run));                   // registrar segmento en el Gantt
+                t += run;                                      // avanzar el reloj
+                cur.tRestante -= run;                          // reducir tiempo restante
 
-                // Encolar los que llegaron durante este quantum ANTES de reinsertar el actual
+                // Encolar procesos que llegaron DURANTE este quantum (antes de reinsertar el actual)
                 EnqueueArrived(restantes, cola, t);
 
                 if (cur.tRestante > 0)
-                    cola.Enqueue(cur);
+                    cola.Enqueue(cur);                         // no terminó, regresa al final de la cola
                 else
                 {
-                    cur.Fin = t;
-                    cur.T = cur.Fin - cur.Llegada;
-                    cur.E = cur.T - cur.t;
-                    resultado.Add(cur);
+                    cur.Fin = t;                               // terminó: registrar fin
+                    cur.T = cur.Fin - cur.Llegada;             // turnaround = fin - llegada
+                    cur.E = cur.T - cur.t;                     // espera = turnaround - burst
+                    resultado.Add(cur);                        // agregar a resultados finales
                 }
             }
         }
@@ -193,43 +205,53 @@ namespace simulador_algoritmos_so
             restantes.RemoveAll(p => p.Llegada <= t);
         }
 
+        // Recibe procesos, lista resultado y segmentos gantt
         private void EjecutarSRTF(List<Proceso> procs, List<Proceso> resultado,
             List<(Proceso p, int ini, int fin)> segs)
         {
+            // Reloj del simulador
             int t = 0;
+            // Proceso que corrió en el tick anterior (para detectar cambios)
             Proceso? prev = null;
+            // Inicio del segmento actual en el Gantt
             int segIni = 0;
 
+            // Mientras haya procesos con tiempo restante
             while (procs.Any(p => p.tRestante > 0))
             {
+                // Filtrar los que ya llegaron y aún tienen tiempo, ordenar por menor tiempo restante
                 var disponibles = procs
                     .Where(p => p.Llegada <= t && p.tRestante > 0)
                     .OrderBy(p => p.tRestante).ThenBy(p => p.Llegada).ToList();
 
+                // Si ninguno ha llegado aún, avanzar un tick
                 if (!disponibles.Any()) { t++; continue; }
 
+                // Tomar el de menor tiempo restante
                 var cur = disponibles.First();
+                // Guardar cuándo corrió por primera vez
                 if (cur.Inicio < 0) cur.Inicio = t;
 
-                // Cambio de proceso → cerrar segmento anterior
+                // Si cambió el proceso que está corriendo, cerrar el segmento anterior en el Gantt
                 if (cur != prev)
                 {
-                    if (prev != null) segs.Add((prev, segIni, t));
-                    segIni = t;
-                    prev = cur;
+                    if (prev != null) segs.Add((prev, segIni, t)); // cerrar segmento del anterior
+                    segIni = t;                                     // iniciar nuevo segmento
+                    prev = cur;                                     // actualizar proceso actual
                 }
 
-                cur.tRestante--;
-                t++;
+                cur.tRestante--;  // ejecutar un tick
+                t++;              // avanzar el reloj
 
+                // Si terminó
                 if (cur.tRestante == 0)
                 {
-                    segs.Add((cur, segIni, t));
-                    prev = null;
-                    cur.Fin = t;
-                    cur.T = cur.Fin - cur.Llegada;
-                    cur.E = cur.T - cur.t;
-                    resultado.Add(cur);
+                    segs.Add((cur, segIni, t));            // cerrar su último segmento en Gantt
+                    prev = null;                           // no hay proceso previo
+                    cur.Fin = t;                           // termina ahora
+                    cur.T = cur.Fin - cur.Llegada;         // turnaround = fin - llegada
+                    cur.E = cur.T - cur.t;                 // espera = turnaround - burst
+                    resultado.Add(cur);                    // agregar a resultados
                 }
             }
         }
